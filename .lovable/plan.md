@@ -2,7 +2,7 @@
 
 ## Build
 - Create shared navigation and distinct Home, Exercises, Settings, and Note Recognition pages.
-- Establish the selected warm-brass visual system with responsive, accessible controls and restrained motion.
+- Establish the selected frosted studio visual system with responsive, accessible controls and restrained motion.
 - Add a central exercise registry so future exercises can be introduced without changing existing pages.
 
 ## Music and practice logic
