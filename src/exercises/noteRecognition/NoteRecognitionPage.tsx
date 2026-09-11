@@ -18,6 +18,8 @@ export function NoteRecognitionPage() {
   const [stats, setStats] = useState<SessionStats>(emptyStats);
   const [frequency, setFrequency] = useState<number | null>(null);
   const [success, setSuccess] = useState(false);
+  const [round, setRound] = useState(0);
+  const [awaitingAttack, setAwaitingAttack] = useState(false);
   const stableSince = useRef<number | null>(null);
   const lastAttempt = useRef<number | null>(null);
   const lockedUntil = useRef(0);
