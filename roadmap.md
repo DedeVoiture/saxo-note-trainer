@@ -1,0 +1,1 @@
+- [ ] Apply the requested “frosted studio” visual direction.
