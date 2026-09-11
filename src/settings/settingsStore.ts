@@ -8,7 +8,7 @@ export type PracticeSettings = {
 };
 
 const STORAGE_KEY = "alto-practice-settings";
-export const defaultSettings: PracticeSettings = { deviceId: "default", showFingering: true, pitchTolerance: 50, stabilityMs: 120 };
+export const defaultSettings: PracticeSettings = { deviceId: "default", showFingering: true, pitchTolerance: 50, stabilityMs: 180 };
 
 export function usePracticeSettings() {
   const [settings, setSettings] = useState<PracticeSettings>(defaultSettings);
