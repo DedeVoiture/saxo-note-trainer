@@ -46,10 +46,16 @@ export function NoteRecognitionPage() {
   };
 
   useEffect(() => {
-    if (!active || frequency === null || !target || Date.now() < lockedUntil.current) {
+    if (!active || !target || Date.now() < lockedUntil.current) {
       stableSince.current = null;
       return;
     }
+    if (frequency === null) {
+      stableSince.current = null;
+      if (awaitingAttack) setAwaitingAttack(false);
+      return;
+    }
+    if (awaitingAttack) return;
     const detected = frequencyToWrittenAlto(frequency);
     const centsToTarget = centsBetween(frequency, target.concertFrequency);
     const isTarget = detected.writtenMidi === target.writtenMidi && Math.abs(centsToTarget) <= settings.pitchTolerance;
@@ -66,17 +72,18 @@ export function NoteRecognitionPage() {
       return;
     }
     if (performance.now() - stableSince.current < settings.stabilityMs) return;
-    lockedUntil.current = Date.now() + 1400;
+    lockedUntil.current = Date.now() + 1200;
     stableSince.current = null;
     lastAttempt.current = null;
     setSuccess(true);
+    setAwaitingAttack(true);
+    setRound((r) => r + 1);
     setStats((current) => ({ correct: current.correct + 1, attempts: current.attempts + 1, streak: current.streak + 1 }));
     const timeout = window.setTimeout(() => {
       setSuccess(false);
-      setTarget((current) => pickRandomNote(beginnerNotes, current?.id));
-    }, 1100);
+    }, 1000);
     return () => window.clearTimeout(timeout);
-  }, [active, frequency, settings.pitchTolerance, settings.stabilityMs, target]);
+  }, [active, frequency, settings.pitchTolerance, settings.stabilityMs, target, awaitingAttack]);
 
   useEffect(() => () => { void stop(); }, [stop]);
 
