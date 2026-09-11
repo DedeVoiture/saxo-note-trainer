@@ -1,1 +1,1 @@
-- [ ] Apply the requested “frosted studio” visual direction.
+- [x] Apply the requested “frosted studio” visual direction.
