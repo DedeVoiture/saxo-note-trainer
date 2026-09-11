@@ -64,22 +64,22 @@ export function NoteRecognitionPage() {
       return;
     }
     if (performance.now() - stableSince.current < settings.stabilityMs) return;
-    lockedUntil.current = Date.now() + 700;
+    lockedUntil.current = Date.now() + 1400;
     stableSince.current = null;
     lastAttempt.current = null;
     setSuccess(true);
     setStats((current) => ({ correct: current.correct + 1, attempts: current.attempts + 1, streak: current.streak + 1 }));
     const timeout = window.setTimeout(() => {
-      setTarget((current) => pickRandomNote(beginnerNotes, current?.id));
       setSuccess(false);
-    }, 520);
+      setTarget((current) => pickRandomNote(beginnerNotes, current?.id));
+    }, 1100);
     return () => window.clearTimeout(timeout);
   }, [active, frequency, settings.pitchTolerance, settings.stabilityMs, target]);
 
   useEffect(() => () => { void stop(); }, [stop]);
 
   const live = frequency === null ? null : { ...frequencyToWrittenAlto(frequency), frequency };
-  const statusCopy = success ? "Correct — next note" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
+  const statusCopy = success ? "Correct! Next note…" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
 
   if (!active) {
     return (
