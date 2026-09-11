@@ -1,6 +1,6 @@
 export type PitchReading = { frequency: number; clarity: number; rms: number } | null;
 
-export function detectPitchYin(buffer: Float32Array, sampleRate: number, minVolume = 0.015): PitchReading {
+export function detectPitchYin(buffer: Float32Array, sampleRate: number, minVolume = 0.006): PitchReading {
   let sumSquares = 0;
   for (const value of buffer) sumSquares += value * value;
   const rms = Math.sqrt(sumSquares / buffer.length);
@@ -25,7 +25,7 @@ export function detectPitchYin(buffer: Float32Array, sampleRate: number, minVolu
   for (let tau = 1; tau <= maxTau; tau += 1) {
     running += difference[tau] ?? 0;
     cmnd[tau] = running === 0 ? 1 : ((difference[tau] ?? 0) * tau) / running;
-    if (tau >= minTau && (cmnd[tau] ?? 1) < 0.14) {
+    if (tau >= minTau && (cmnd[tau] ?? 1) < 0.2) {
       while (tau + 1 <= maxTau && (cmnd[tau + 1] ?? 1) < (cmnd[tau] ?? 1)) tau += 1;
       tauEstimate = tau;
       break;
@@ -41,5 +41,5 @@ export function detectPitchYin(buffer: Float32Array, sampleRate: number, minVolu
   const refinedTau = tauEstimate + adjustment;
   const frequency = sampleRate / refinedTau;
   const clarity = 1 - current;
-  return frequency >= 130 && frequency <= 1000 && clarity >= 0.82 ? { frequency, clarity, rms } : null;
+  return frequency >= 130 && frequency <= 1000 && clarity >= 0.6 ? { frequency, clarity, rms } : null;
 }
