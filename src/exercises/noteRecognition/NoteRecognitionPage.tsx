@@ -116,7 +116,7 @@ export function NoteRecognitionPage() {
         <div className="sm:absolute sm:right-8 sm:top-8"><LivePitchDisplay reading={live} state={state} /></div>
         <div className="mx-auto mt-8 max-w-2xl text-center sm:mt-20 lg:mt-24">
           <p className="eyebrow text-primary">Target</p>
-          <div key={target?.id} className="note-enter mt-3 font-display text-[clamp(7rem,19vw,14rem)] font-medium leading-none" aria-label={`Target note ${target?.syllable}`}>{target?.syllable}</div>
+          <div key={`${target?.id}-${round}`} className="note-enter mt-3 font-display text-[clamp(7rem,19vw,14rem)] font-medium leading-none" aria-label={`Target note ${target?.syllable}`}>{target?.syllable}</div>
           <p className="mt-4 text-sm text-muted-foreground">Written {target?.writtenPitch} · Concert {target?.concertPitch} · {Math.round(target?.concertFrequency ?? 0)} Hz</p>
         </div>
         <div className="mx-auto mt-8 max-w-sm sm:mt-10">
