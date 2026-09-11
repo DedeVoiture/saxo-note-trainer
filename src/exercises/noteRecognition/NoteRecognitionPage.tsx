@@ -18,6 +18,8 @@ export function NoteRecognitionPage() {
   const [stats, setStats] = useState<SessionStats>(emptyStats);
   const [frequency, setFrequency] = useState<number | null>(null);
   const [success, setSuccess] = useState(false);
+  const [round, setRound] = useState(0);
+  const [awaitingAttack, setAwaitingAttack] = useState(false);
   const stableSince = useRef<number | null>(null);
   const lastAttempt = useRef<number | null>(null);
   const lockedUntil = useRef(0);
@@ -44,10 +46,16 @@ export function NoteRecognitionPage() {
   };
 
   useEffect(() => {
-    if (!active || frequency === null || !target || Date.now() < lockedUntil.current) {
+    if (!active || !target || Date.now() < lockedUntil.current) {
       stableSince.current = null;
       return;
     }
+    if (frequency === null) {
+      stableSince.current = null;
+      if (awaitingAttack) setAwaitingAttack(false);
+      return;
+    }
+    if (awaitingAttack) return;
     const detected = frequencyToWrittenAlto(frequency);
     const centsToTarget = centsBetween(frequency, target.concertFrequency);
     const isTarget = detected.writtenMidi === target.writtenMidi && Math.abs(centsToTarget) <= settings.pitchTolerance;
@@ -64,22 +72,23 @@ export function NoteRecognitionPage() {
       return;
     }
     if (performance.now() - stableSince.current < settings.stabilityMs) return;
-    lockedUntil.current = Date.now() + 1400;
+    lockedUntil.current = Date.now() + 1200;
     stableSince.current = null;
     lastAttempt.current = null;
     setSuccess(true);
+    setAwaitingAttack(true);
+    setRound((r) => r + 1);
     setStats((current) => ({ correct: current.correct + 1, attempts: current.attempts + 1, streak: current.streak + 1 }));
     const timeout = window.setTimeout(() => {
       setSuccess(false);
-      setTarget((current) => pickRandomNote(beginnerNotes, current?.id));
-    }, 1100);
+    }, 1000);
     return () => window.clearTimeout(timeout);
-  }, [active, frequency, settings.pitchTolerance, settings.stabilityMs, target]);
+  }, [active, frequency, settings.pitchTolerance, settings.stabilityMs, target, awaitingAttack]);
 
   useEffect(() => () => { void stop(); }, [stop]);
 
   const live = frequency === null ? null : { ...frequencyToWrittenAlto(frequency), frequency };
-  const statusCopy = success ? "Correct! Next note…" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
+  const statusCopy = success ? "Correct! Same note again…" : awaitingAttack ? "Release, then play it once more" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
 
   if (!active) {
     return (
@@ -87,7 +96,7 @@ export function NoteRecognitionPage() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">Exercises / Note Recognition</p>
           <h1 className="mt-4 font-display text-5xl leading-tight sm:text-7xl">Play what you see.</h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground">Read the written note, play it on your E♭ alto saxophone, and move forward automatically when the pitch settles.</p>
+          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground">Read the written note, play it on your E♭ alto saxophone, and repeat the same note each time the pitch settles.</p>
         </div>
         <section className="frost-panel mx-auto mt-12 max-w-xl p-6 sm:p-8" aria-label="Exercise setup">
           <AudioInputSelector devices={devices} value={settings.deviceId} onChange={(deviceId) => updateSettings({ deviceId })} />
@@ -107,7 +116,7 @@ export function NoteRecognitionPage() {
         <div className="sm:absolute sm:right-8 sm:top-8"><LivePitchDisplay reading={live} state={state} /></div>
         <div className="mx-auto mt-8 max-w-2xl text-center sm:mt-20 lg:mt-24">
           <p className="eyebrow text-primary">Target</p>
-          <div key={target?.id} className="note-enter mt-3 font-display text-[clamp(7rem,19vw,14rem)] font-medium leading-none" aria-label={`Target note ${target?.syllable}`}>{target?.syllable}</div>
+          <div key={`${target?.id}-${round}`} className="note-enter mt-3 font-display text-[clamp(7rem,19vw,14rem)] font-medium leading-none" aria-label={`Target note ${target?.syllable}`}>{target?.syllable}</div>
           <p className="mt-4 text-sm text-muted-foreground">Written {target?.writtenPitch} · Concert {target?.concertPitch} · {Math.round(target?.concertFrequency ?? 0)} Hz</p>
         </div>
         <div className="mx-auto mt-8 max-w-sm sm:mt-10">
@@ -117,7 +126,7 @@ export function NoteRecognitionPage() {
         <div className="mt-7 flex min-h-9 items-center justify-center gap-2.5" aria-live="polite">{success ? <><Check className="success-pop size-5 text-success" /><span className="font-semibold text-success">Correct!</span></> : <><span className={state === "listening" ? "size-2.5 animate-pulse rounded-full bg-success" : "size-2.5 rounded-full bg-muted-foreground/50"} /><span className="text-sm font-medium">{statusCopy}</span></>}</div>
         <div className="mt-8 flex flex-col gap-7 border-t border-border/70 pt-7 sm:flex-row sm:items-end sm:justify-between"><ExerciseStats stats={stats} /><div className="flex gap-2"><Button variant="outline" onClick={() => updateSettings({ showFingering: !settings.showFingering })}>{settings.showFingering ? <EyeOff /> : <Eye />}</Button><Button onClick={() => void end()}><Square className="size-3 fill-current" />Stop Exercise</Button></div></div>
       </section>
-      <p className="mt-5 text-center text-xs text-muted-foreground">Advances automatically · tolerance ±{settings.pitchTolerance} cents · stability {settings.stabilityMs} ms</p>
+      <p className="mt-5 text-center text-xs text-muted-foreground">Repeats the same note · tolerance ±{settings.pitchTolerance} cents · stability {settings.stabilityMs} ms</p>
     </main>
   );
 }
