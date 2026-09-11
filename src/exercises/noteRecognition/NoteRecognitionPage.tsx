@@ -98,7 +98,7 @@ export function NoteRecognitionPage() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">Exercises / Note Recognition</p>
           <h1 className="mt-4 font-display text-5xl leading-tight sm:text-7xl">Play what you see.</h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground">Read the written note, play it on your E♭ alto saxophone, and repeat the same note each time the pitch settles.</p>
+          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground">Read the written note, play it on your E♭ alto saxophone, and move on to a new note each time the pitch settles.</p>
         </div>
         <section className="frost-panel mx-auto mt-12 max-w-xl p-6 sm:p-8" aria-label="Exercise setup">
           <AudioInputSelector devices={devices} value={settings.deviceId} onChange={(deviceId) => updateSettings({ deviceId })} />
