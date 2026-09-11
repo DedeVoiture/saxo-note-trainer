@@ -75,6 +75,8 @@ export function NoteRecognitionPage() {
     lockedUntil.current = Date.now() + 1200;
     stableSince.current = null;
     lastAttempt.current = null;
+    const next = pickRandomNote(beginnerNotes, target.id);
+    if (next) setTarget(next);
     setSuccess(true);
     setAwaitingAttack(true);
     setRound((r) => r + 1);
@@ -88,7 +90,7 @@ export function NoteRecognitionPage() {
   useEffect(() => () => { void stop(); }, [stop]);
 
   const live = frequency === null ? null : { ...frequencyToWrittenAlto(frequency), frequency };
-  const statusCopy = success ? "Correct! Same note again…" : awaitingAttack ? "Release, then play it once more" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
+  const statusCopy = success ? "Correct! Next note…" : awaitingAttack ? "Release, then play the next note" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
 
   if (!active) {
     return (
@@ -96,7 +98,7 @@ export function NoteRecognitionPage() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">Exercises / Note Recognition</p>
           <h1 className="mt-4 font-display text-5xl leading-tight sm:text-7xl">Play what you see.</h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground">Read the written note, play it on your E♭ alto saxophone, and repeat the same note each time the pitch settles.</p>
+          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground">Read the written note, play it on your E♭ alto saxophone, and move on to a new note each time the pitch settles.</p>
         </div>
         <section className="frost-panel mx-auto mt-12 max-w-xl p-6 sm:p-8" aria-label="Exercise setup">
           <AudioInputSelector devices={devices} value={settings.deviceId} onChange={(deviceId) => updateSettings({ deviceId })} />
@@ -126,7 +128,7 @@ export function NoteRecognitionPage() {
         <div className="mt-7 flex min-h-9 items-center justify-center gap-2.5" aria-live="polite">{success ? <><Check className="success-pop size-5 text-success" /><span className="font-semibold text-success">Correct!</span></> : <><span className={state === "listening" ? "size-2.5 animate-pulse rounded-full bg-success" : "size-2.5 rounded-full bg-muted-foreground/50"} /><span className="text-sm font-medium">{statusCopy}</span></>}</div>
         <div className="mt-8 flex flex-col gap-7 border-t border-border/70 pt-7 sm:flex-row sm:items-end sm:justify-between"><ExerciseStats stats={stats} /><div className="flex gap-2"><Button variant="outline" onClick={() => updateSettings({ showFingering: !settings.showFingering })}>{settings.showFingering ? <EyeOff /> : <Eye />}</Button><Button onClick={() => void end()}><Square className="size-3 fill-current" />Stop Exercise</Button></div></div>
       </section>
-      <p className="mt-5 text-center text-xs text-muted-foreground">Repeats the same note · tolerance ±{settings.pitchTolerance} cents · stability {settings.stabilityMs} ms</p>
+      <p className="mt-5 text-center text-xs text-muted-foreground">New note each round · tolerance ±{settings.pitchTolerance} cents · stability {settings.stabilityMs} ms</p>
     </main>
   );
 }
