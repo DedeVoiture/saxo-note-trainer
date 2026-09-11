@@ -79,7 +79,7 @@ export function NoteRecognitionPage() {
   useEffect(() => () => { void stop(); }, [stop]);
 
   const live = frequency === null ? null : { ...frequencyToWrittenAlto(frequency), frequency };
-  const statusCopy = success ? "Correct — next note" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
+  const statusCopy = success ? "Correct! Next note…" : state === "initializing" ? "Starting audio…" : state === "no-signal" ? "Play a note to begin" : state === "listening" ? "Listening…" : "Audio detection inactive";
 
   if (!active) {
     return (
