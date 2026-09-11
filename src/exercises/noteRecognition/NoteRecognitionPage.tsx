@@ -126,7 +126,7 @@ export function NoteRecognitionPage() {
         <div className="mt-7 flex min-h-9 items-center justify-center gap-2.5" aria-live="polite">{success ? <><Check className="success-pop size-5 text-success" /><span className="font-semibold text-success">Correct!</span></> : <><span className={state === "listening" ? "size-2.5 animate-pulse rounded-full bg-success" : "size-2.5 rounded-full bg-muted-foreground/50"} /><span className="text-sm font-medium">{statusCopy}</span></>}</div>
         <div className="mt-8 flex flex-col gap-7 border-t border-border/70 pt-7 sm:flex-row sm:items-end sm:justify-between"><ExerciseStats stats={stats} /><div className="flex gap-2"><Button variant="outline" onClick={() => updateSettings({ showFingering: !settings.showFingering })}>{settings.showFingering ? <EyeOff /> : <Eye />}</Button><Button onClick={() => void end()}><Square className="size-3 fill-current" />Stop Exercise</Button></div></div>
       </section>
-      <p className="mt-5 text-center text-xs text-muted-foreground">Advances automatically · tolerance ±{settings.pitchTolerance} cents · stability {settings.stabilityMs} ms</p>
+      <p className="mt-5 text-center text-xs text-muted-foreground">Repeats the same note · tolerance ±{settings.pitchTolerance} cents · stability {settings.stabilityMs} ms</p>
     </main>
   );
 }
