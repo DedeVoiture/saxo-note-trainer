@@ -1,24 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, AudioLines, Ear, Music2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({ meta: [
+    { title: "Alto — Saxophone Practice Studio" }, { name: "description", content: "A focused practice studio for learning written notes on E-flat alto saxophone." },
+    { property: "og:title", content: "Alto — Saxophone Practice Studio" }, { property: "og:description", content: "A focused practice studio for learning written notes on E-flat alto saxophone." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
+  ] }), component: HomePage,
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
+function HomePage() { return <main><section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl content-center gap-12 px-4 py-16 sm:px-8 lg:grid-cols-[1.15fr_.85fr] lg:items-center"><div><p className="eyebrow">Alto saxophone · E♭</p><h1 className="mt-5 max-w-3xl font-display text-6xl leading-[1.02] sm:text-8xl">See the note.<br />Hear it settle.</h1><p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground">A quiet, responsive practice studio that listens as you play and keeps the music moving.</p><Button asChild size="lg" className="mt-9"><Link to="/exercises/note-recognition">Start note recognition <ArrowRight /></Link></Button></div><div className="frost-panel relative min-h-[430px] overflow-hidden p-8"><div className="absolute right-8 top-8 rounded-md border border-border/60 bg-surface/60 px-3 py-2 text-xs text-muted-foreground backdrop-blur-lg"><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-success" />Listening</div><p className="eyebrow mt-16 text-center text-primary">Target</p><p className="mt-3 text-center font-display text-[10rem] leading-none">Sol</p><div className="mx-auto mt-10 flex max-w-sm items-center justify-around border-t border-border/70 pt-7 text-center"><div><AudioLines className="mx-auto size-5 text-primary" /><p className="mt-2 text-xs text-muted-foreground">Live pitch</p></div><div><Ear className="mx-auto size-5 text-primary" /><p className="mt-2 text-xs text-muted-foreground">Local audio</p></div><div><Music2 className="mx-auto size-5 text-primary" /><p className="mt-2 text-xs text-muted-foreground">Written notes</p></div></div></div></section></main>; }

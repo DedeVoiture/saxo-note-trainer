@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExercisesRouteImport } from './routes/exercises'
+import { Route as ExercisesNoteRecognitionRouteImport } from './routes/exercises.note-recognition'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExercisesRoute = ExercisesRouteImport.update({
+  id: '/exercises',
+  path: '/exercises',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExercisesNoteRecognitionRoute =
+  ExercisesNoteRecognitionRouteImport.update({
+    id: '/note-recognition',
+    path: '/note-recognition',
+    getParentRoute: () => ExercisesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/exercises': typeof ExercisesRouteWithChildren
+  '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/exercises': typeof ExercisesRouteWithChildren
+  '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/exercises': typeof ExercisesRouteWithChildren
+  '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/exercises' | '/exercises/note-recognition'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/exercises' | '/exercises/note-recognition'
+  id: '__root__' | '/' | '/exercises' | '/exercises/note-recognition'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExercisesRoute: typeof ExercisesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exercises': {
+      id: '/exercises'
+      path: '/exercises'
+      fullPath: '/exercises'
+      preLoaderRoute: typeof ExercisesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exercises/note-recognition': {
+      id: '/exercises/note-recognition'
+      path: '/note-recognition'
+      fullPath: '/exercises/note-recognition'
+      preLoaderRoute: typeof ExercisesNoteRecognitionRouteImport
+      parentRoute: typeof ExercisesRoute
+    }
   }
 }
 
+interface ExercisesRouteChildren {
+  ExercisesNoteRecognitionRoute: typeof ExercisesNoteRecognitionRoute
+}
+
+const ExercisesRouteChildren: ExercisesRouteChildren = {
+  ExercisesNoteRecognitionRoute: ExercisesNoteRecognitionRoute,
+}
+
+const ExercisesRouteWithChildren = ExercisesRoute._addFileChildren(
+  ExercisesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExercisesRoute: ExercisesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
