@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExercisesRouteImport } from './routes/exercises'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ExercisesNoteRecognitionRouteImport } from './routes/exercises.note-recognition'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ExercisesRoute = ExercisesRouteImport.update({
   path: '/exercises',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExercisesNoteRecognitionRoute =
   ExercisesNoteRecognitionRouteImport.update({
     id: '/note-recognition',
@@ -33,30 +39,39 @@ const ExercisesNoteRecognitionRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exercises' | '/exercises/note-recognition'
+  fullPaths: '/' | '/exercises' | '/settings' | '/exercises/note-recognition'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exercises' | '/exercises/note-recognition'
-  id: '__root__' | '/' | '/exercises' | '/exercises/note-recognition'
+  to: '/' | '/exercises' | '/settings' | '/exercises/note-recognition'
+  id:
+    | '__root__'
+    | '/'
+    | '/exercises'
+    | '/settings'
+    | '/exercises/note-recognition'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ExercisesRoute: typeof ExercisesRouteWithChildren
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -73,6 +88,13 @@ declare module '@tanstack/react-router' {
       path: '/exercises'
       fullPath: '/exercises'
       preLoaderRoute: typeof ExercisesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exercises/note-recognition': {
@@ -100,6 +122,7 @@ const ExercisesRouteWithChildren = ExercisesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ExercisesRoute: ExercisesRouteWithChildren,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
