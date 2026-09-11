@@ -75,6 +75,8 @@ export function NoteRecognitionPage() {
     lockedUntil.current = Date.now() + 1200;
     stableSince.current = null;
     lastAttempt.current = null;
+    const next = pickRandomNote(beginnerNotes, target.id);
+    if (next) setTarget(next);
     setSuccess(true);
     setAwaitingAttack(true);
     setRound((r) => r + 1);
