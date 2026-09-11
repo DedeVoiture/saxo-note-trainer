@@ -59,12 +59,33 @@ export function usePitchInput(deviceId: string, onFrequency: (frequency: number 
       streamRef.current = stream;
       runningRef.current = true;
       await refreshDevices();
+      const history: number[] = [];
+      let lastGood: number | null = null;
+      let lastGoodAt = 0;
+      const HOLD_MS = 320;
       const analyze = () => {
         if (!runningRef.current) return;
         analyser.getFloatTimeDomainData(buffer);
         const reading = detectPitchYin(buffer, context.sampleRate);
-        callbackRef.current(reading?.frequency ?? null);
-        setState(reading ? "listening" : "no-signal");
+        const now = performance.now();
+        if (reading) {
+          history.push(reading.frequency);
+          if (history.length > 5) history.shift();
+          const sorted = [...history].sort((a, b) => a - b);
+          const median = sorted[Math.floor(sorted.length / 2)] ?? reading.frequency;
+          lastGood = median;
+          lastGoodAt = now;
+          callbackRef.current(median);
+          setState("listening");
+        } else if (lastGood !== null && now - lastGoodAt < HOLD_MS) {
+          callbackRef.current(lastGood);
+          setState("listening");
+        } else {
+          history.length = 0;
+          lastGood = null;
+          callbackRef.current(null);
+          setState("no-signal");
+        }
         frameRef.current = requestAnimationFrame(analyze);
       };
       setState("no-signal");
