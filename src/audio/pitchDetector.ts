@@ -12,7 +12,7 @@ export function detectPitchYin(buffer: Float32Array, sampleRate: number, minVolu
   for (let tau = minTau; tau <= maxTau; tau += 1) {
     let sum = 0;
     for (let i = 0; i < buffer.length - tau; i += 1) {
-      const delta = buffer[i] - buffer[i + tau];
+      const delta = (buffer[i] ?? 0) - (buffer[i + tau] ?? 0);
       sum += delta * delta;
     }
     difference[tau] = sum;
@@ -23,18 +23,18 @@ export function detectPitchYin(buffer: Float32Array, sampleRate: number, minVolu
   let running = 0;
   let tauEstimate = -1;
   for (let tau = 1; tau <= maxTau; tau += 1) {
-    running += difference[tau];
-    cmnd[tau] = running === 0 ? 1 : (difference[tau] * tau) / running;
-    if (tau >= minTau && cmnd[tau] < 0.14) {
-      while (tau + 1 <= maxTau && cmnd[tau + 1] < cmnd[tau]) tau += 1;
+    running += difference[tau] ?? 0;
+    cmnd[tau] = running === 0 ? 1 : ((difference[tau] ?? 0) * tau) / running;
+    if (tau >= minTau && (cmnd[tau] ?? 1) < 0.14) {
+      while (tau + 1 <= maxTau && (cmnd[tau + 1] ?? 1) < (cmnd[tau] ?? 1)) tau += 1;
       tauEstimate = tau;
       break;
     }
   }
   if (tauEstimate < 0) return null;
 
-  const previous = cmnd[tauEstimate - 1] ?? cmnd[tauEstimate];
-  const current = cmnd[tauEstimate];
+  const current = cmnd[tauEstimate] ?? 1;
+  const previous = cmnd[tauEstimate - 1] ?? current;
   const next = cmnd[tauEstimate + 1] ?? current;
   const denominator = 2 * (2 * current - next - previous);
   const adjustment = denominator === 0 ? 0 : (next - previous) / denominator;

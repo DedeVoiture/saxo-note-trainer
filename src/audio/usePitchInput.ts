@@ -45,7 +45,9 @@ export function usePitchInput(deviceId: string, onFrequency: (frequency: number 
     setState("initializing");
     setError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: deviceId === "default" ? undefined : { exact: deviceId }, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const audioConstraints: MediaTrackConstraints = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+      if (deviceId !== "default") audioConstraints.deviceId = { exact: deviceId };
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
       const context = new AudioContext();
       await context.resume();
       const analyser = context.createAnalyser();
