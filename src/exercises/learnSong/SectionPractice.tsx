@@ -33,7 +33,7 @@ export function SectionPractice({ sections, sectionIndex, completed, onSectionCh
 
   const handleFrequency = useCallback((value: number | null) => setFrequency(value), []);
   const { state, error, stop } = usePitchInput(settings.deviceId, handleFrequency);
-  const { play, stop: stopPlayback, playing } = useSectionPlayer();
+  const { play, stop: stopPlayback, playing, getCurrentPosition } = useSectionPlayer();
 
   const section = sections[sectionIndex];
   const playable = useMemo(() => section?.notes.filter((note) => !note.outOfRange) ?? [], [section]);
@@ -97,6 +97,54 @@ export function SectionPractice({ sections, sectionIndex, completed, onSectionCh
   if (!section) return null;
   const progress = playable.length ? Math.round((noteIndex / playable.length) * 100) : 0;
 
+  // Calculate rhythm visualization data
+  const rhythmNotes = useMemo(() => {
+    if (!playable.length) return [];
+
+    // Find the earliest start time to use as origin
+    const origin = playable[0]!.startTime;
+
+    // Calculate total duration for scaling
+    const lastNote = playable[playable.length - 1]!;
+    const totalDuration = Math.max(0.001, lastNote.startTime + lastNote.duration - origin);
+
+    return playable.map(note => ({
+      note,
+      // Position relative to origin, scaled to percentage
+      x: ((note.startTime - origin) / totalDuration) * 100,
+      // Width proportional to duration, scaled to percentage
+      width: (note.duration / totalDuration) * 100,
+      // Minimum width to ensure visibility of very short notes
+      minWidth: 2, // px equivalent in % - we'll handle this in CSS
+    }));
+  }, [playable]);
+
+  // Update playhead position during playback
+  useEffect(() => {
+    if (!playing || !getCurrentPosition || !rhythmNotes.length) return;
+
+    const origin = rhythmNotes[0]!.note.startTime;
+    const lastNote = rhythmNotes[rhythmNotes.length - 1]!.note;
+    const totalDuration = Math.max(0.001, lastNote.startTime + lastNote.duration - origin);
+
+    const updatePlayhead = () => {
+      const currentPosition = getCurrentPosition();
+      if (currentPosition !== null) {
+        // Convert current position in piece to percentage of total duration
+        const positionInPiece = Math.max(0, currentPosition); // relative to piece start
+        const percentage = (positionInPiece / totalDuration) * 100;
+        // Apply as CSS custom property
+        const container = document.querySelector('.section-rhythm-container');
+        if (container) {
+          container.style.setProperty('--playhead-position', `${percentage}%`);
+        }
+      }
+    };
+
+    const intervalId = setInterval(updatePlayhead, 50); // Update 20 times per second
+    return () => clearInterval(intervalId);
+  }, [playing, getCurrentPosition, rhythmNotes]);
+
   return (
     <section className="frost-panel p-5 sm:p-8" aria-label="Section practice">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -112,6 +160,33 @@ export function SectionPractice({ sections, sectionIndex, completed, onSectionCh
       </div>
 
       <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} /></div>
+
+      {/* Rhythm Visualization */}
+      <div className="mt-4">
+        <div className="section-rhythm-container relative w-full h-6 bg-muted-foreground/5 rounded-full">
+          {rhythmNotes.map(({ note, x, width }) => (
+            <div
+              key={note.index}
+              className={cn(
+                "absolute left-[{x}%] -top-0.5 h-7",
+                note.index === noteIndex && "bg-primary/20",
+                note.index < noteIndex && "bg-success/20"
+              )}
+              style={{ width: `${width}%` }}
+            />
+          ))}
+          {/* Playhead during playback */}
+          {playing && (
+            <div
+              className="absolute left-0 top-0 h-6 w-0.5 bg-primary"
+              style={{ left: `var(--playhead-position, 0%)` }}
+            />
+          )}
+        </div>
+        <div className="mt-1 text-xs text-muted-foreground text-center">
+          Rhythm visualization: each block represents a note, width = duration
+        </div>
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_11rem]">
         <div>

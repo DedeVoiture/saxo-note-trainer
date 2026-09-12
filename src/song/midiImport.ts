@@ -1,4 +1,5 @@
-import { Midi } from "@tonejs/midi";
+import midiPackage from "@tonejs/midi";
+const { Midi } = midiPackage;
 import type { NoteEvent, Song, SongTrack } from "./types";
 
 export const ACCEPTED_MIDI_EXTENSIONS = [".mid", ".midi"];

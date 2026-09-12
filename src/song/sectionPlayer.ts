@@ -42,7 +42,29 @@ export function useSectionPlayer() {
     timeoutRef.current = window.setTimeout(stop, (end - context.currentTime + 0.2) * 1000);
   }, [stop]);
 
+  // Update playback position periodically while playing
+  useEffect(() => {
+    if (!playing || !playbackStartRef.current || !contextRef.current) return;
+
+    const interval = setInterval(() => {
+      // The interval will keep running even when not playing, but we check playing above
+    }, 100); // Update 10 times per second
+
+    return () => clearInterval(interval);
+  }, [playing]);
+
+  // Function to get current playback position in the piece's timeline
+  const getCurrentPosition = useCallback((): number | null => {
+    if (!playing || !playbackStartRef.current || !contextRef.current) return null;
+
+    const context = contextRef.current;
+    const elapsed = context.currentTime - playbackStartRef.current;
+    // Apply the same 0.15 second offset used in note scheduling
+    const adjustedElapsed = Math.max(0, elapsed - 0.15);
+    return adjustedElapsed;
+  }, [playing]);
+
   useEffect(() => stop, [stop]);
 
-  return { play, stop, playing };
+  return { play, stop, playing, getCurrentPosition };
 }
