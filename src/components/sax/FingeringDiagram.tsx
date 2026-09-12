@@ -22,6 +22,7 @@ export function FingeringDiagram({ fingering }: { fingering: Fingering }) {
           {fingering.right.map((pressed, index) => <Key key={`right-${index}`} pressed={pressed} label={`Right ${index + 1}`} />)}
         </div>
       </div>
+      {fingering.extras?.length ? <div className="mt-3 flex flex-wrap justify-center gap-1.5">{fingering.extras.map((extra) => <span key={extra} className="rounded-full border border-key-pressed bg-key-pressed/20 px-2.5 py-1 text-[11px] font-semibold">{extra}</span>)}</div> : null}
       <div className="mt-4 flex justify-center gap-5 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-full bg-key-pressed" />Pressed</span><span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-full border border-key bg-key/30" />Open</span></div>
     </div>
   );

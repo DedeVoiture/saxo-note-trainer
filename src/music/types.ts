@@ -4,6 +4,7 @@ export type Fingering = {
   octave: boolean;
   palm: boolean;
   side: boolean;
+  extras?: string[] | undefined;
 };
 
 export type SaxNote = {

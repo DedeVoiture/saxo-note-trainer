@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExercisesRouteImport } from './routes/exercises'
+import { Route as LearnASongRouteImport } from './routes/learn-a-song'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ExercisesIndexRouteImport } from './routes/exercises.index'
 import { Route as ExercisesNoteRecognitionRouteImport } from './routes/exercises.note-recognition'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const ExercisesRoute = ExercisesRouteImport.update({
   id: '/exercises',
   path: '/exercises',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnASongRoute = LearnASongRouteImport.update({
+  id: '/learn-a-song',
+  path: '/learn-a-song',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -45,12 +51,14 @@ const ExercisesNoteRecognitionRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRouteWithChildren
+  '/learn-a-song': typeof LearnASongRoute
   '/settings': typeof SettingsRoute
   '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
   '/exercises/': typeof ExercisesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/learn-a-song': typeof LearnASongRoute
   '/settings': typeof SettingsRoute
   '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
   '/exercises': typeof ExercisesIndexRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRouteWithChildren
+  '/learn-a-song': typeof LearnASongRoute
   '/settings': typeof SettingsRoute
   '/exercises/note-recognition': typeof ExercisesNoteRecognitionRoute
   '/exercises/': typeof ExercisesIndexRoute
@@ -68,15 +77,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/exercises'
+    | '/learn-a-song'
     | '/settings'
     | '/exercises/note-recognition'
     | '/exercises/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/exercises/note-recognition' | '/exercises'
+  to:
+    | '/'
+    | '/learn-a-song'
+    | '/settings'
+    | '/exercises/note-recognition'
+    | '/exercises'
   id:
     | '__root__'
     | '/'
     | '/exercises'
+    | '/learn-a-song'
     | '/settings'
     | '/exercises/note-recognition'
     | '/exercises/'
@@ -85,6 +101,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ExercisesRoute: typeof ExercisesRouteWithChildren
+  LearnASongRoute: typeof LearnASongRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -102,6 +119,13 @@ declare module '@tanstack/react-router' {
       path: '/exercises'
       fullPath: '/exercises'
       preLoaderRoute: typeof ExercisesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn-a-song': {
+      id: '/learn-a-song'
+      path: '/learn-a-song'
+      fullPath: '/learn-a-song'
+      preLoaderRoute: typeof LearnASongRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -145,6 +169,7 @@ const ExercisesRouteWithChildren = ExercisesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ExercisesRoute: ExercisesRouteWithChildren,
+  LearnASongRoute: LearnASongRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
