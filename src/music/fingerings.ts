@@ -1,6 +1,6 @@
 import type { Fingering } from "./types";
 
-type Base = { left: Fingering["left"]; right: Fingering["right"]; extras?: string[] };
+type Base = { left: Fingering["left"]; right: Fingering["right"]; extras?: string[] | undefined };
 
 const base = (left: Fingering["left"], right: Fingering["right"], extras?: string[]): Base => ({ left, right, extras });
 
